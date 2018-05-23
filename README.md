@@ -16,5 +16,5 @@ In this short assignment, I implemented a chatbot for Slack for searching for ne
  - wake up on an outgoing webhook from #bots
 
 # Pictures
-![Conversastion 1](./readmeImgs/1)
-![Conversastion 2](./readmeImgs/2)
+![Conversastion 1](./readmeImgs/1.png)
+![Conversastion 2](./readmeImgs/2.png)
