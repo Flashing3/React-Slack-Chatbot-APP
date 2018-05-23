@@ -89,8 +89,8 @@ controller.hears(['hungry', 'food','starving'], ['direct_message', 'direct_menti
       {
         pattern: bot.utterances.yes,
         callback: function(response,convo) {
-          convo.say('Cool, you said: ' + response.text);
-          convo.say('Great! I will continue...');
+          // convo.say('Cool, you said: ' + response.text);
+          // convo.say('Great! I will continue...');
           convo.next();
         }
       },
@@ -105,15 +105,77 @@ controller.hears(['hungry', 'food','starving'], ['direct_message', 'direct_menti
       }
     ],{},'default');
 
-  //   convo.addQuestion('What food would you like?',[
-  //   {
-  //     pattern: '(.*?)',
-  //     callback: function(response,convo) {
-  //       convo.say('Cool, you said: ' + response.text);
-  //       convo.next();
-  //     }
-  //   }
-  // ],{},'default');
+    let food_choice = '';
+
+
+    convo.addQuestion('What type of food would you like?',[
+    {
+      pattern: '(.*?)',
+      callback: function(response,convo) {
+        convo.say('Cool, you said: ' + response.text);
+        food_choice = response.text;
+        console.log('Your food choice is: ', food_choice);
+        convo.next();
+      }
+    }
+  ],{},'default');
+
+  let place_choice = '';
+  convo.addQuestion('Where are you at?',[
+  {
+    pattern: '(.*?)',
+    callback: function(response,convo) {
+      convo.say('Cool, you said: ' + response.text);
+      place_choice = response.text;
+      console.log('Your place choice is: ', place_choice);
+
+      bot.reply(message, 'One sec! Pulling out the data...');
+      'use strict';
+
+      const yelp = require('yelp-fusion');
+
+      // const client = yelp.client(process.env.YELP_CLIENT_SECRET);
+      let yelpClient;
+      // yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET).then((res) => {
+      // console.log("Get herer?");
+        yelpClient = yelp.client(process.env.YELP_CLIENT_SECRET);
+        // });
+        // console.log("The api key is: ", process.env.YELP_CLIENT_SECRET);
+        let restaurantName = '';
+        let restaurantNumb = '';
+        let restaurantImg = '';
+        let restaurantRating= '';
+        yelpClient.search({
+        term:food_choice,
+        location: place_choice
+
+      }).then(response => {
+        // restaurantName = response.jsonBody.businesses;
+        restaurantName = response.jsonBody.businesses[0].name;
+        restaurantNumb = response.jsonBody.businesses[0].display_phone;
+        restaurantImg = response.jsonBody.businesses[0].image_url;
+        // restaurantRating = response.jsonBody.businesses[0].rating;
+
+        // console.log(restaurantName);
+        // console.log(restaurantNumb);
+        // console.log( restaurantImg );
+        convo.say('Bravo!');
+        convo.say(restaurantName);
+        // convo.say(restaurantRating);
+        convo.say(restaurantNumb);
+        convo.say(restaurantImg);
+
+      }).catch(e => {
+        console.log(e);
+      });
+
+
+      convo.next();
+    }
+  }
+],{},'default');
+
+
 
     })
 
@@ -126,30 +188,4 @@ controller.hears(['help'], ['direct_message', 'direct_mention', 'mention'], (bot
 
 controller.hears(['(.*?)'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
   bot.reply(message, 'What are you even talking about?');
-});
-
-'use strict';
-
-const yelp = require('yelp-fusion');
-
-// const client = yelp.client(process.env.YELP_CLIENT_SECRET);
-let yelpClient;
-// yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET).then((res) => {
-// console.log("Get herer?");
-  yelpClient = yelp.client(process.env.YELP_CLIENT_SECRET);
-  // });
-  // console.log("The api key is: ", process.env.YELP_CLIENT_SECRET);
-
-  yelpClient.search({
-  term:'Sushiya',
-  location: 'hanover, nh'
-
-}).then(response => {
-  console.log(response.jsonBody.businesses[0].name);
-console.log(response.jsonBody.businesses[0].name);
-console.log(response.jsonBody.businesses[0].display_phone);
-console.log(response.jsonBody.businesses[0].image_url);
-
-}).catch(e => {
-  console.log(e);
 });
